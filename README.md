@@ -3,6 +3,7 @@
 fork of [ffmpeg.js](https://github.com/Kagami/ffmpeg.js/) that:
 
 * removes minification from the `emcc` build. This allows debugging while developing. For prod builds, modern tools like Vite will minify at build time, so it is ok if libraries are not pre-minified
+* remove worker-specific builds since [comlink](https://github.com/GoogleChromeLabs/comlink) works without it (inc [in Vite](https://github.com/GoogleChromeLabs/comlink))
 
 # ffmpeg.js
 
@@ -147,7 +148,12 @@ It's recommended to use [Docker](https://www.docker.com/) to build ffmpeg.js.
 3.  Build everything:
     ```bash
     docker run --rm -it -v /path/to/ffmpeg.js:/mnt -w /opt kagamihi/ffmpeg.js
-    # cp -a /mnt/{.git,build,Makefile} . && source /root/emsdk/emsdk_env.sh && make && cp ffmpeg*.js /mnt
+
+    # inside docker run:
+    cp -a /mnt/{.git,build,Makefile} . && source /root/emsdk/emsdk_env.sh && make && cp ffmpeg*.js /mnt
+
+    # to rebuild after changing only Makefile and/or pre/post js:
+    cp /mnt/Makefile . && cp -a /mnt/build/*.js build && make clean-js ffmpeg-mp4.js && cp ffmpeg*.js /mnt
     ```
 
 That's it. ffmpeg.js modules should appear in your repository clone.

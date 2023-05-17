@@ -2,7 +2,7 @@
   "name": "ffmpeg.js",
   "version": "4.2.9003",
   "description": "Port of FFmpeg with Emscripten",
-  "main": "ffmpeg-webm.js",
+  "main": "ffmpeg-mp4.js",
   "scripts": {
     "test": "mocha test/test.js"
   },
