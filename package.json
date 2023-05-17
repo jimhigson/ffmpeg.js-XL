@@ -1,14 +1,14 @@
 {
-  "name": "ffmpeg.js",
+  "name": "ffmpeg.js-myhack",
   "version": "4.2.9003",
-  "description": "Port of FFmpeg with Emscripten",
+  "description": "Port of FFmpeg with Emscripten based on ffmpeg.js",
   "main": "ffmpeg-mp4.js",
   "scripts": {
     "test": "mocha test/test.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Kagami/ffmpeg.js.git"
+    "url": "git+https://github.com/jimhigson/ffmpeg.js-myhack"
   },
   "keywords": [
     "asm.js",
@@ -16,13 +16,13 @@
     "ffmpeg",
     "video"
   ],
-  "author": "Kagami Hiiragi",
+  "author": "Jim Higson",
   "license": "(LGPL-2.1+ OR GPL-2.0)",
   "ethereum": "0x3ec9a73ba55a22f020226be8b4496304d12be0e1",
   "bugs": {
-    "url": "https://github.com/Kagami/ffmpeg.js/issues"
+    "url": "https://github.com/jimhigson/ffmpeg.js-myhack/issues"
   },
-  "homepage": "https://github.com/Kagami/ffmpeg.js#readme",
+  "homepage": "https://github.com/jimhigson/ffmpeg.js-myhack",
   "devDependencies": {
     "chai": "latest",
     "mocha": "latest"
