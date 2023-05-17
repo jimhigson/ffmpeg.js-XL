@@ -1,4 +1,10 @@
-function __ffmpegjs(__ffmpegjs_opts) {
+
+// -----------------------------------  
+// ---------- START OF pre.js --------
+// -----------------------------------  
+// compiled from code at https://github.com/jimhigson/ffmpeg.js-myhack
+
+export const ffmpeg = function __ffmpegjs(__ffmpegjs_opts) {
   __ffmpegjs_opts = __ffmpegjs_opts || {};
   var __ffmpegjs_abort = abort;
   var __ffmpegjs_return;
@@ -130,4 +136,4 @@ function __ffmpegjs(__ffmpegjs_opts) {
 
 // -----------------------------------  
 // ---------- END OF pre.js ----------
-// -----------------------------------  
+// -----------------------------------
