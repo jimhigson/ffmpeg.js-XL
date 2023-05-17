@@ -214,9 +214,15 @@ build/ffmpeg-mp4/ffmpeg.bc: $(MP4_SHARED_DEPS)
 	emmake make -j && \
 	cp ffmpeg ffmpeg.bc
 
+
+# my edits (jimhigson):
+#	-g1  			keep whitespace in js	
+# 	--closure 0 	turn off closure compiler
+
 EMCC_COMMON_ARGS = \
 	-O3 \
-	--closure 1 \
+	-g1 \
+	--closure 0 \
 	--memory-init-file 0 \
 	-s WASM=0 \
 	-s WASM_ASYNC_COMPILATION=0 \

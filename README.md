@@ -1,3 +1,9 @@
+# ffmpeg.js-myhack
+
+fork of [ffmpeg.js](https://github.com/Kagami/ffmpeg.js/) that:
+
+* removes minification from the `emcc` build. This allows debugging while developing. For prod builds, modern tools like Vite will minify at build time, so it is ok if libraries are not pre-minified
+
 # ffmpeg.js
 
 [![NPM](https://nodei.co/npm/ffmpeg.js.png?downloads=true)](https://www.npmjs.com/package/ffmpeg.js)
