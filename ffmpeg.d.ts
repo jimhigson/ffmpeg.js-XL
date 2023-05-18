@@ -1,8 +1,17 @@
 
+type FsWithFileSystems = (typeof FS) & {
+    filesystems: {
+        'MEMFS': FilesystemType,
+        'NODEFS': FilesystemType,
+        'WORKERFS': FilesystemType,
+    };
+}
 
 export type FfmpegOptions<TReturn> = {
-    prepareFS: (fs: typeof FS) => void;
-    gatherResults: (fs: typeof FS) => TReturn;
+    stdOut?: (output: string) => void;
+    stdErr?: (output: string) => void;
+    prepareFS: (fs: FsWithFileSystems) => void;
+    gatherResults: (fs: FsWithFileSystems) => TReturn;
     arguments: string[];
 };
 

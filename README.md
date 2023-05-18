@@ -2,10 +2,13 @@
 
 fork of [ffmpeg.js](https://github.com/Kagami/ffmpeg.js/) that is modified to:
 
-* makes it possible to read large files by lifting the Uint8Array size limit (at time of writing: Chrome 2G, Safari 4G, Firefox 8G) when used with [WORKERFS](https://emscripten.org/docs/api_reference/Filesystem-API.html#filesystem-api-workerfs)
-* provide a minimum of syntactic sugar/hand-holding. You are given the [emscripten Filesystem API](https://emscripten.org/docs/api_reference/Filesystem-API.html) to work with directly before and after the `ffmpeg` binary is called.
+* makes it possible to read large files by lifting the Uint8Array size limit (Chrome 2Gb, Safari 4Gb, Firefox 8Gb) when used with [WORKERFS](https://emscripten.org/docs/api_reference/Filesystem-API.html#filesystem-api-workerfs).
+* typescript types
+* minimal syntactic sugar or hand-holding. You are given the [emscripten Filesystem API](https://emscripten.org/docs/api_reference/Filesystem-API.html) to work with directly with, however you want to.
 * removes minification from the `emcc` build. This allows debugging while developing. For prod builds, modern tools like Vite will minify at build time, so it is ok if libraries are not pre-minified
 * remove worker-specific builds since [comlink](https://github.com/GoogleChromeLabs/comlink) works without it (inc [in Vite](https://github.com/GoogleChromeLabs/comlink))
+
+Note that limits on output size still  apply if putting results in a Uint8Array, although it may be possible to circumvent these by splitting into multiple arrays.
 
 # ffmpeg.js
 
@@ -34,71 +37,90 @@ Example: `2.7.9005`
 
 See documentation on [Module object](https://emscripten.org/docs/api_reference/module.html#affecting-execution) for the list of options that you can pass.
 
-### Sync run
+### Running ffmpeg
 
-ffmpeg.js provides common module API, `ffmpeg-webm.js` is the default module. Add its name after the slash if you need another build, e.g. `require("ffmpeg.js/ffmpeg-mp4.js")`.
-
-```js
+```ts
 const ffmpeg = require("ffmpeg.js");
-let stdout = "";
-let stderr = "";
+
 // Print FFmpeg's version.
-ffmpeg({
-  arguments: ["-version"],
-  print: function(data) { stdout += data + "\n"; },
-  printErr: function(data) { stderr += data + "\n"; },
-  onExit: function(code) {
-    console.log("Process exited with code " + code);
-    console.log(stdout);
-    console.log(stderr);
+const output = ffmpeg({
+  arguments: [/* ffmpeg cli arguments */],
+  prepareFS(fs) {
+    // fs is emscripten's FS - write any files to the file system that you want ffmpeg to read
+    // this will run before the ffmpeg binary
+  },
+  gatherResults(fs) {
+    // this will run after the ffmpeg binary
+    // look in the filesystem here for the results of running ffmpeg, and return the file
+    // you are interested in. The return value returned here will be returned by ffmpeg
+  },
+  stdErr(output) {
+    console.warn(`stdErr: ${output}`);
+  },
+  stdOut(output) {
+    console.log(`stdOut: ${output}`);
   },
 });
 ```
 
-Use e.g. [browserify](https://github.com/browserify/browserify) in case of Browser.
+### Encoding huge files in the browser
 
-### Via Web Worker
+Files bigger than the Uint8Array limit require `WORKERFS`. Set up code like this inside your worker:
 
-Unlike the upstream ffmpeg.js, there is no special build for workers. It is recommended to use the standard export from [comlink](https://github.com/GoogleChromeLabs/comlink).
+```ts
+// file ffmpegWorker
 
-### Files
+export const runFfmpeg = (inputFile: File) => ffmpeg({
 
-Empscripten supports several types of [file systems](https://emscripten.org/docs/api_reference/Filesystem-API.html#file-systems). ffmpeg.js uses [MEMFS](https://emscripten.org/docs/api_reference/Filesystem-API.html#memfs) to store the input/output files in FFmpeg's working directory. You need to pass *Array* of *Object* to `MEMFS` option with the following keys:
-* **name** *(String)* - File name, can't contain slashes.
-* **data** *(ArrayBuffer/ArrayBufferView/Array)* - File data.
+  // these arguments clip out a 2 minute clip
+  arguments: ["-ss", "02:00", "-i", "/input/test.mp4", "-t", "02:00", "-c", "copy", "-avoid_negative_ts", "1",  "/output/out.mp4"],
+  prepareFS(fs) {
 
-ffmpeg.js resulting object has `MEMFS` option with the same structure and contains files which weren't passed to the input, i.e. new files created by FFmpeg.
+    // dir to mount blobs onto for ffmpeg to read from:
+    fs.mkdir("/input");
 
-```js
-import { ffmpeg } from "ffmpeg.js-myhack";
+    // dir for ffmpeg to put the output into
+    fs.mkdir("/output");
 
-ffmpeg({
-    prepareFS(fs) {
-      const fd = fs.open('myVideo.mp4', "w+");
-      fs.write(fd, uint8Array, 0, uint8Array.length);
-      fs.close(fd);
-    },
+    // WORKERFS does not require reading the file into memory, so we are not subject to
+    // file size limits
+    fs.mount(fs.filesystems.WORKERFS, { files: [inputFile] }, "/input");
+  },
+  gatherResults(fs) {
+    const fileContents: Uint8Array = fs.readFile("/output/out.mp4");
 
-    arguments: ["-i", "myVideo.mp4", "-c:v", "libvpx", "-an", "-y", "out.mp4"],
-});
+    // clean up a bit:
+    fs.unmount(inputDir);
+    fs.unlink(outputFilePath);
+
+    return fileContents;
+  },
+  stdErr(output) {
+    console.warn(`stdErr: ${output}`);
+  },
+  stdOut(output) {
+    console.log(`stdOut: ${output}`);
+  },
+});  
 ```
 
-You can also mount other FS by passing *Array* of *Object* to `mounts` option with the following keys:
-* **type** *(String)* - Name of the file system.
-* **opts** *(Object)* - Underlying file system options.
-* **mountpoint** *(String)* - Mount path, must start with a slash, must not contain other slashes and also the following paths are blacklisted: `/tmp`, `/home`, `/dev`, `/work`. Mount directory will be created automatically before mount.
+You can then call your worker (in this example via `vite-plugin-comlink`):
 
-See documentation of [FS.mount](https://emscripten.org/docs/api_reference/Filesystem-API.html#FS.mount) for more details.
+```ts
+const inputFile File; // get file from <input type="file" etc. This file can be any size.
 
-```js
-const ffmpeg = require("ffmpeg.js");
-ffmpeg({
-  // Mount /data inside application to the current directory.
-  mounts: [{type: "NODEFS", opts: {root: "."}, mountpoint: "/data"}],
-  arguments: ["-i", "/data/test.webm", "-c:v", "libvpx", "-an", "-y", "/data/out.webm"],
+const ffmpegWorker = new ComlinkWorker<
+  typeof import("./ffmpegWorker")
+>(new URL("./ffmpegWorker.ts", import.meta.url), {
+  name: "ffmpeg",
 });
-// out.webm was written to the current directory.
+
+const edited = await runFfmpeg(inputFile);
+// edited is a Uint8Array with a 2 minute clip taken from inputFile
 ```
+
+Note that:
+* you can't put `ffmpeg` into your worker without wrapping since you need to pass it non-serialisable callback functions
 
 ## Build instructions
 
@@ -106,7 +128,7 @@ It's recommended to use [Docker](https://www.docker.com/) to build ffmpeg.js.
 
 1.  Clone ffmpeg.js repository with submodules:
     ```bash
-    git clone https://github.com/Kagami/ffmpeg.js.git --recurse-submodules
+    git clone https://github.com/jimhigson/ffmpeg.js-hack.git --recurse-submodules
     ```
 
 2.  Modify Makefile and/or patches if you wish to make a custom build.
@@ -145,6 +167,8 @@ make
 ```
 
 ## Credits
+
+[ffmpeg.js](https://github.com/Kagami/ffmpeg.js/), which this repo is forked from.
 
 Thanks to [videoconverter.js](https://bgrins.github.io/videoconverter.js/) for inspiration. And of course to all great projects which made this library possible: FFmpeg, Emscripten, asm.js, node.js and many others.
 
