@@ -59,41 +59,7 @@ Use e.g. [browserify](https://github.com/browserify/browserify) in case of Brows
 
 ### Via Web Worker
 
-ffmpeg.js also provides wrapper for main function with Web Worker interface to offload the work to a different process. Worker sends the following messages:
-* `{type: "ready"}` - Worker loaded and ready to accept commands.
-* `{type: "run"}` - Worker started the job.
-* `{type: "stdout", data: "<line>"}` - FFmpeg printed to stdout.
-* `{type: "stderr", data: "<line>"}` - FFmpeg printed to stderr.
-* `{type: "exit", data: "<code>"}` - FFmpeg exited.
-* `{type: "done", data: "<result>"}` - Job finished with some result.
-* `{type: "error", data: "<error description>"}` - Error occurred.
-* `{type: "abort", data: "<abort reason>"}` - FFmpeg terminated abnormally (e.g. out of memory, wasm error).
-
-You can send the following messages to the worker:
-* `{type: "run", ...opts}` - Start new job with provided options.
-
-```js
-const worker = new Worker("ffmpeg-worker-webm.js");
-worker.onmessage = function(e) {
-  const msg = e.data;
-  switch (msg.type) {
-  case "ready":
-    worker.postMessage({type: "run", arguments: ["-version"]});
-    break;
-  case "stdout":
-    console.log(msg.data);
-    break;
-  case "stderr":
-    console.log(msg.data);
-    break;
-  case "done":
-    console.log(msg.data);
-    break;
-  }
-};
-```
-
-You can use [worker_threads](https://nodejs.org/api/worker_threads.html) module in case of Node.
+Unlike the upstream ffmpeg.js, there is no special build for workers. It is recommended to use the standard export from [comlink](https://github.com/GoogleChromeLabs/comlink).
 
 ### Files
 
@@ -147,7 +113,8 @@ It's recommended to use [Docker](https://www.docker.com/) to build ffmpeg.js.
 
 3.  Build everything:
     ```bash
-    docker run --rm -it -v /path/to/ffmpeg.js:/mnt -w /opt kagamihi/ffmpeg.js
+    cd ffmpeg.js.git
+    docker run --rm -it -v `pwd`:/mnt -w /opt kagamihi/ffmpeg.js
 
     # inside docker run:
     cp -a /mnt/{.git,build,Makefile} . && source /root/emsdk/emsdk_env.sh && make && cp ffmpeg*.js /mnt
