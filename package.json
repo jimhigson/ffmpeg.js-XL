@@ -3,7 +3,7 @@
   "version": "4.2.9003",
   "description": "Port of FFmpeg with Emscripten based on ffmpeg.js",
   "main": "ffmpeg-mp4.js",
-  "types": "ffmpeg-mp4.d.ts",
+  "types": "ffmpeg.d.ts",
   "type": "module",
   "scripts": {
     "test": "mocha test/test.js"
