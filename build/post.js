@@ -2,12 +2,9 @@
 // ---------- START OF post.js -------
 // -----------------------------------
 
-return __ffmpegjs_return;
+return ffmpegjsReturn;
 };
 
 // -----------------------------------  
 // ---------- END OF post.js ---------
 // -----------------------------------  
-
-// let the caller use FS directly:
-export { FS };

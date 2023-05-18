@@ -1,7 +1,9 @@
 # ffmpeg.js-myhack
 
-fork of [ffmpeg.js](https://github.com/Kagami/ffmpeg.js/) that:
+fork of [ffmpeg.js](https://github.com/Kagami/ffmpeg.js/) that is modified to:
 
+* makes it possible to read large files by lifting the Uint8Array size limit (at time of writing: Chrome 2G, Safari 4G, Firefox 8G) when used with [WORKERFS](https://emscripten.org/docs/api_reference/Filesystem-API.html#filesystem-api-workerfs)
+* provide a minimum of syntactic sugar/hand-holding. You are given the [emscripten Filesystem API](https://emscripten.org/docs/api_reference/Filesystem-API.html) to work with directly before and after the `ffmpeg` binary is called.
 * removes minification from the `emcc` build. This allows debugging while developing. For prod builds, modern tools like Vite will minify at build time, so it is ok if libraries are not pre-minified
 * remove worker-specific builds since [comlink](https://github.com/GoogleChromeLabs/comlink) works without it (inc [in Vite](https://github.com/GoogleChromeLabs/comlink))
 
@@ -15,9 +17,7 @@ This library provides FFmpeg builds ported to JavaScript using [Emscripten proje
 
 Currently available builds (additional builds may be added in future):
 * `ffmpeg-webm.js` - WebM encoding (VP8 & Opus encoders, popular decoders).
-* `ffmpeg-worker-webm.js` - Web Worker version of `ffmpeg-webm.js`.
 * `ffmpeg-mp4.js` - MP4 encoding (H.264 & AAC & MP3 encoders, popular decoders).
-* `ffmpeg-worker-mp4.js` - Web Worker version of `ffmpeg-mp4.js`.
 
 Note: only NPM releases contain abovementioned files.
 
@@ -70,17 +70,17 @@ Empscripten supports several types of [file systems](https://emscripten.org/docs
 ffmpeg.js resulting object has `MEMFS` option with the same structure and contains files which weren't passed to the input, i.e. new files created by FFmpeg.
 
 ```js
-const ffmpeg = require("ffmpeg.js");
-const fs = require("fs");
-const testData = new Uint8Array(fs.readFileSync("test.webm"));
-// Encode test video to VP8.
-const result = ffmpeg({
-  MEMFS: [{name: "test.webm", data: testData}],
-  arguments: ["-i", "test.webm", "-c:v", "libvpx", "-an", "out.webm"],
+import { ffmpeg } from "ffmpeg.js-myhack";
+
+ffmpeg({
+    prepareFS(fs) {
+      const fd = fs.open('myVideo.mp4', "w+");
+      fs.write(fd, uint8Array, 0, uint8Array.length);
+      fs.close(fd);
+    },
+
+    arguments: ["-i", "myVideo.mp4", "-c:v", "libvpx", "-an", "-y", "out.mp4"],
 });
-// Write out.webm to disk.
-const out = result.MEMFS[0];
-fs.writeFileSync(out.name, Buffer(out.data));
 ```
 
 You can also mount other FS by passing *Array* of *Object* to `mounts` option with the following keys:
