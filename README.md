@@ -38,17 +38,18 @@ Example: `2.7.9005`
 
 See documentation on [Module object](https://emscripten.org/docs/api_reference/module.html#affecting-execution) for the list of options that you can pass.
 
-### Running ffmpeg
+### API - running ffmpeg in your app
 
 ```ts
-const ffmpeg = require("ffmpeg.js");
+import { ffmpeg } from "ffmpeg.js-XL";
 
 // Print FFmpeg's version.
 const output = ffmpeg({
   arguments: [/* ffmpeg cli arguments */],
   prepareFS(fs) {
     // fs is emscripten's FS - write any files to the file system that you want ffmpeg to read
-    // this will run before the ffmpeg binary
+    // this will run before the ffmpeg binary.
+    // see @types/emscripten/index.d.ts
   },
   gatherResults(fs) {
     // this will run after the ffmpeg binary
@@ -69,7 +70,9 @@ const output = ffmpeg({
 Files bigger than the Uint8Array limit require `WORKERFS`. Set up code like this inside your worker:
 
 ```ts
+
 // create a file like ffmpegWorker.ts
+import { ffmpeg } from "ffmpeg.js-XL";
 
 export const runFfmpeg = (inputFile: File) => ffmpeg({
 
