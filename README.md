@@ -1,14 +1,12 @@
 # ffmpeg.js-XL
 
-fork of [ffmpeg.js](https://github.com/Kagami/ffmpeg.js/) that is modified to:
+fork of [ffmpeg.js](https://github.com/Kagami/ffmpeg.js/) modified for:
 
-* makes it possible to read **huge** files by lifting the Uint8Array size limit (Chrome 2Gb, Safari 4Gb, Firefox 8Gb) when used with [WORKERFS](https://emscripten.org/docs/api_reference/Filesystem-API.html#filesystem-api-workerfs). `ffmpeg.js` allowed using `MEMFS`, but it eagerly read the whole file into memory
-so the maximum size was restricted. As far as I can tell, there are no limits on
-input file size.
-* provide typescript types
-* reduce syntactic sugar or hand-holding to a minimum. You are given the [emscripten Filesystem API](https://emscripten.org/docs/api_reference/Filesystem-API.html) to work with directly with, however you want to.
-* remove minification from the `emcc` build. This allows debugging while developing. For prod builds, modern tools like Vite will minify at build time, so it is ok if libraries are not pre-minified. If you use this and need these files to be minified you'll have to add that yourself.
-* remove worker-specific builds since [comlink](https://github.com/GoogleChromeLabs/comlink) can make a nice worker interface for us
+* reading **huge** files by sidestepping Uint8Array size limits. Uses [WORKERFS](https://emscripten.org/docs/api_reference/Filesystem-API.html#filesystem-api-workerfs) so whole videos files don't get read into memory. *otherwise, limits are: (Chrome 2Gb, Safari 4Gb, Firefox 8Gb)*.
+* typescript types by default
+* keeps syntactic sugar and hand-holding at a minimum. You are given the [emscripten Filesystem API](https://emscripten.org/docs/api_reference/Filesystem-API.html) to work with directly in any way you wish.
+* no minification in the `emcc` build. This allows debugging while developing. For prod builds, modern tools like Vite will minify at build time, so it is ok if libraries are not pre-minified. If you use this and need these files to be minified you can do that yourself.
+* no worker-specific builds. Use [comlink](https://github.com/GoogleChromeLabs/comlink) instead.
 
 ## Caveats
 
@@ -145,10 +143,14 @@ It's recommended to use [Docker](https://www.docker.com/) to build ffmpeg.js.
 3.  Build everything:
     ```bash
     cd ffmpeg.js-XL.git
+
+    # start docker, mounting host pwd in the container:
     docker run --rm -it -v `pwd`:/mnt -w /opt kagamihi/ffmpeg.js
 
     # inside docker run: 1) copy files in from host fs; 2) build it; 3) copy result back to host fs
     cp -a /mnt/{.git,build,Makefile} . && source /root/emsdk/emsdk_env.sh && make && cp ffmpeg*.js /mnt
+
+    # the build result should now be in the root of the repo on the host
 
     # to efficiently rebuild after changing only Makefile and/or pre/post js:
     cp /mnt/Makefile . && cp -a /mnt/build/*.js build && make clean-js ffmpeg-mp4.js && cp ffmpeg*.js /mnt
