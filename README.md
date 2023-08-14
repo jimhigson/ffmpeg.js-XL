@@ -2,19 +2,20 @@
 
 fork of [ffmpeg.js](https://github.com/Kagami/ffmpeg.js/) that is modified to:
 
-* makes it possible to read large files by lifting the Uint8Array size limit (Chrome 2Gb, Safari 4Gb, Firefox 8Gb) when used with [WORKERFS](https://emscripten.org/docs/api_reference/Filesystem-API.html#filesystem-api-workerfs).
-* typescript types
-* minimal syntactic sugar or hand-holding. You are given the [emscripten Filesystem API](https://emscripten.org/docs/api_reference/Filesystem-API.html) to work with directly with, however you want to.
-* removes minification from the `emcc` build. This allows debugging while developing. For prod builds, modern tools like Vite will minify at build time, so it is ok if libraries are not pre-minified
-* remove worker-specific builds since [comlink](https://github.com/GoogleChromeLabs/comlink) works without it (inc [in Vite](https://github.com/GoogleChromeLabs/comlink))
+* makes it possible to read huge files by lifting the Uint8Array size limit (Chrome 2Gb, Safari 4Gb, Firefox 8Gb) when used with [WORKERFS](https://emscripten.org/docs/api_reference/Filesystem-API.html#filesystem-api-workerfs). `ffmpeg.js` allowed using `MEMFS`, but it eagerly read the whole file into memory
+so the maximum size was restricted. As far as I can tell, there are no limits on
+input file size.
+* provide typescript types
+* reduce syntactic sugar or hand-holding to a minimum. You are given the [emscripten Filesystem API](https://emscripten.org/docs/api_reference/Filesystem-API.html) to work with directly with, however you want to.
+* remove minification from the `emcc` build. This allows debugging while developing. For prod builds, modern tools like Vite will minify at build time, so it is ok if libraries are not pre-minified. If you use this and need these files to be minified you'll have to add that yourself.
+* remove worker-specific builds since [comlink](https://github.com/GoogleChromeLabs/comlink) can make a nice worker interface for us
 
-Note that limits on output size still  apply if putting results in a Uint8Array, although it may be possible to circumvent these by splitting into multiple arrays.
+## Caveats
 
-# ffmpeg.js
-
-[![NPM](https://nodei.co/npm/ffmpeg.js.png?downloads=true)](https://www.npmjs.com/package/ffmpeg.js)
-
-This library provides FFmpeg builds ported to JavaScript using [Emscripten project](https://github.com/emscripten-core/emscripten). Builds are optimized for in-browser use: minimal size for faster loading, asm.js, performance tunings, etc. Though they work in Node as well.
+* The limits on maximum typed array size size still apply if you put the results in a `Uint8Array`. It is possible to circumvent this limit if you need to by not reading the whole output into a single Uint8Array.
+* With great power comes great responsibility. Unlike `ffmpeg.js`, I don't try to stop you from breaking things.
+* I built this fork because I needed it for the browser. It should work but isn't tested in node.
+* Inherited from `ffmepeg.js`, `emcc` is passed `WASM=0`. My requirements are quite light processing-wise so this is ok for me, but wasm would be faster and I may change this in future.
 
 ## Builds
 
@@ -68,7 +69,7 @@ const output = ffmpeg({
 Files bigger than the Uint8Array limit require `WORKERFS`. Set up code like this inside your worker:
 
 ```ts
-// file ffmpegWorker
+// create a file like ffmpegWorker.ts
 
 export const runFfmpeg = (inputFile: File) => ffmpeg({
 
@@ -87,6 +88,8 @@ export const runFfmpeg = (inputFile: File) => ffmpeg({
     fs.mount(fs.filesystems.WORKERFS, { files: [inputFile] }, "/input");
   },
   gatherResults(fs) {
+    // Nb - assuming non-huge output can be read into a single uint8array.
+    // If you need huge output don't do this.
     const fileContents: Uint8Array = fs.readFile("/output/out.mp4");
 
     // clean up a bit:
@@ -107,7 +110,8 @@ export const runFfmpeg = (inputFile: File) => ffmpeg({
 You can then call your worker (in this example via `vite-plugin-comlink`):
 
 ```ts
-const inputFile File; // get file from <input type="file" etc. This file can be any size.
+// get inputFile from <input type="file" or somewhere else. This file can be any size.
+const inputFile File = /*...*/;
 
 const ffmpegWorker = new ComlinkWorker<
   typeof import("./ffmpegWorker")
@@ -120,7 +124,9 @@ const edited = await runFfmpeg(inputFile);
 ```
 
 Note that:
-* you can't put `ffmpeg` into your worker without wrapping since you need to pass it non-serialisable callback functions
+* in the above example, the file is never read entirely into memory. Ffmpeg will read it a little bit at a time to do the
+conversion. Only the output is written to `MEMFS`.
+* you can't put `ffmpeg` into your worker without wrapping it in a file like `ffmpegWorker.ts` since you need to pass it non-serialisable callback functions
 
 ## Build instructions
 
@@ -145,26 +151,9 @@ It's recommended to use [Docker](https://www.docker.com/) to build ffmpeg.js.
     cp /mnt/Makefile . && cp -a /mnt/build/*.js build && make clean-js ffmpeg-mp4.js && cp ffmpeg*.js /mnt
     ```
 
-That's it. ffmpeg.js modules should appear in your repository clone.
-
 ## Build without Docker
 
-Ubuntu example:
-
-```bash
-sudo apt-get update
-sudo apt-get install -y git python build-essential automake libtool pkg-config
-
-cd ~
-git clone https://github.com/emscripten-core/emsdk.git && cd emsdk
-./emsdk install latest
-./emsdk activate latest
-source emsdk_env.sh
-
-cd ~
-git clone https://github.com/Kagami/ffmpeg.js.git --recurse-submodules && cd ffmpeg.js
-make
-```
+I've never done this. See the upstream docs at ffmpeg.js if you need to for some reason.
 
 ## Credits
 
