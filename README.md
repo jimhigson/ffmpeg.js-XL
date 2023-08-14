@@ -134,14 +134,14 @@ It's recommended to use [Docker](https://www.docker.com/) to build ffmpeg.js.
 
 1.  Clone ffmpeg.js repository with submodules:
     ```bash
-    git clone https://github.com/jimhigson/ffmpeg.js-hack.git --recurse-submodules
+    git clone https://github.com/jimhigson/ffmpeg.js-XL.git --recurse-submodules
     ```
 
 2.  Modify Makefile and/or patches if you wish to make a custom build.
 
 3.  Build everything:
     ```bash
-    cd ffmpeg.js.git
+    cd ffmpeg.js-XL.git
     docker run --rm -it -v `pwd`:/mnt -w /opt kagamihi/ffmpeg.js
 
     # inside docker run: 1) copy files in from host fs; 2) build it; 3) copy result back to host fs
