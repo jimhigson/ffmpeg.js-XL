@@ -144,7 +144,7 @@ It's recommended to use [Docker](https://www.docker.com/) to build ffmpeg.js.
     cd ffmpeg.js.git
     docker run --rm -it -v `pwd`:/mnt -w /opt kagamihi/ffmpeg.js
 
-    # inside docker run:
+    # inside docker run: 1) copy files in from host fs; 2) build it; 3) copy result back to host fs
     cp -a /mnt/{.git,build,Makefile} . && source /root/emsdk/emsdk_env.sh && make && cp ffmpeg*.js /mnt
 
     # to efficiently rebuild after changing only Makefile and/or pre/post js:
