@@ -2,7 +2,7 @@
 // -----------------------------------  
 // ---------- START OF pre.js --------
 // -----------------------------------  
-// compiled from code at https://github.com/jimhigson/ffmpeg.js-myhack
+// compiled from code at https://github.com/jimhigson/ffmpeg.js-XL
 
 
 export const ffmpeg = (ffmpegOptions) => {

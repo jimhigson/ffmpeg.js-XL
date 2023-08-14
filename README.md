@@ -1,8 +1,8 @@
-# ffmpeg.js-myhack
+# ffmpeg.js-XL
 
 fork of [ffmpeg.js](https://github.com/Kagami/ffmpeg.js/) that is modified to:
 
-* makes it possible to read huge files by lifting the Uint8Array size limit (Chrome 2Gb, Safari 4Gb, Firefox 8Gb) when used with [WORKERFS](https://emscripten.org/docs/api_reference/Filesystem-API.html#filesystem-api-workerfs). `ffmpeg.js` allowed using `MEMFS`, but it eagerly read the whole file into memory
+* makes it possible to read **huge** files by lifting the Uint8Array size limit (Chrome 2Gb, Safari 4Gb, Firefox 8Gb) when used with [WORKERFS](https://emscripten.org/docs/api_reference/Filesystem-API.html#filesystem-api-workerfs). `ffmpeg.js` allowed using `MEMFS`, but it eagerly read the whole file into memory
 so the maximum size was restricted. As far as I can tell, there are no limits on
 input file size.
 * provide typescript types
