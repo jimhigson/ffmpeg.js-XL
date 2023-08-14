@@ -1,5 +1,7 @@
 *
 !/COPYING.*
 !/LICENSE.*
-# don't skip publishing built code (change from fork):
-# !/ffmpeg*.js
+# built files:
+!/ffmpeg-*.js
+# typescript types:
+!/ffmpeg.d.ts
