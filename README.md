@@ -1,8 +1,8 @@
-# ffmpeg.js-XL
+# ffmpeg.js-xl
 
-fork of [ffmpeg.js](https://github.com/Kagami/ffmpeg.js/) modified for:
+Fork of [ffmpeg.js](https://github.com/Kagami/ffmpeg.js/) modified for:
 
-* reading **huge** files by sidestepping Uint8Array size limits. Uses [WORKERFS](https://emscripten.org/docs/api_reference/Filesystem-API.html#filesystem-api-workerfs) so whole videos files don't get read into memory. *otherwise, limits are: (Chrome 2Gb, Safari 4Gb, Firefox 8Gb)*.
+* reading **XL/Extra Large** files. I sidestep the Uint8Array size limits with [WORKERFS](https://emscripten.org/docs/api_reference/Filesystem-API.html#filesystem-api-workerfs) so whole videos files don't get read into memory. *otherwise, limits are: (Chrome 2Gb, Safari 4Gb, Firefox 8Gb)*.
 * typescript types by default
 * keeps syntactic sugar and hand-holding at a minimum. You are given the [emscripten Filesystem API](https://emscripten.org/docs/api_reference/Filesystem-API.html) to work with directly in any way you wish.
 * no minification in the `emcc` build. This allows debugging while developing. For prod builds, modern tools like Vite will minify at build time, so it is ok if libraries are not pre-minified. If you use this and need these files to be minified you can do that yourself.
@@ -38,8 +38,10 @@ See documentation on [Module object](https://emscripten.org/docs/api_reference/m
 
 ### API - running ffmpeg in your app
 
+First, add the `ffmpeg.js-xl` dependency from [npm repo](https://www.npmjs.com/package/ffmpeg.js-xl) using npm/yarn/pnpm/whatever.
+
 ```ts
-import { ffmpeg } from "ffmpeg.js-XL";
+import { ffmpeg } from "ffmpeg.js-xl";
 
 // Print FFmpeg's version.
 const output = ffmpeg({
@@ -70,7 +72,7 @@ Files bigger than the Uint8Array limit require `WORKERFS`. Set up code like this
 ```ts
 
 // create a file like ffmpegWorker.ts
-import { ffmpeg } from "ffmpeg.js-XL";
+import { ffmpeg } from "ffmpeg.js-xl";
 
 export const runFfmpeg = (inputFile: File) => ffmpeg({
 
@@ -135,14 +137,14 @@ It's recommended to use [Docker](https://www.docker.com/) to build ffmpeg.js.
 
 1.  Clone ffmpeg.js repository with submodules:
     ```bash
-    git clone https://github.com/jimhigson/ffmpeg.js-XL.git --recurse-submodules
+    git clone https://github.com/jimhigson/ffmpeg.js-xl.git --recurse-submodules
     ```
 
 2.  Modify Makefile and/or patches if you wish to make a custom build.
 
 3.  Build everything:
     ```bash
-    cd ffmpeg.js-XL.git
+    cd ffmpeg.js-xl.git
 
     # start docker, mounting host pwd in the container:
     docker run --rm -it -v `pwd`:/mnt -w /opt kagamihi/ffmpeg.js

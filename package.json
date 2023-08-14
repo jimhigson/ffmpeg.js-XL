@@ -1,5 +1,5 @@
 {
-  "name": "ffmpeg.js-XL",
+  "name": "ffmpeg.js-xl",
   "version": "4.2.9003",
   "description": "Port of FFmpeg for large files in the browser, with Emscripten based on ffmpeg.js",
   "main": "ffmpeg-mp4.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jimhigson/ffmpeg.js-XL"
+    "url": "git+https://github.com/jimhigson/ffmpeg.js-xl"
   },
   "keywords": [
     "asm.js",
@@ -22,9 +22,9 @@
   "license": "(LGPL-2.1+ OR GPL-2.0)",
   "ethereum": "0x3ec9a73ba55a22f020226be8b4496304d12be0e1",
   "bugs": {
-    "url": "https://github.com/jimhigson/ffmpeg.js-XL/issues"
+    "url": "https://github.com/jimhigson/ffmpeg.js-xl/issues"
   },
-  "homepage": "https://github.com/jimhigson/ffmpeg.js-XL",
+  "homepage": "https://github.com/jimhigson/ffmpeg.js-xl",
   "devDependencies": {
     "chai": "latest",
     "mocha": "latest"

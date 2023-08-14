@@ -1,4 +1,5 @@
 *
 !/COPYING.*
 !/LICENSE.*
-!/ffmpeg*.js
+# don't skip publishing built code (change from fork):
+# !/ffmpeg*.js
