@@ -1,7 +1,7 @@
 {
-  "name": "ffmpeg.js-myhack",
+  "name": "ffmpeg.js-big",
   "version": "4.2.9003",
-  "description": "Port of FFmpeg with Emscripten based on ffmpeg.js",
+  "description": "Port of FFmpeg for large files in the browser, with Emscripten based on ffmpeg.js",
   "main": "ffmpeg-mp4.js",
   "types": "ffmpeg.d.ts",
   "type": "module",
