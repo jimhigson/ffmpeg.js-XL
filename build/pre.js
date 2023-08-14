@@ -15,8 +15,6 @@ export const ffmpeg = (ffmpegOptions) => {
       throw new Error("do not have prepareFS and gatherResults");
     }
 
-    console.log('ffmpeg.js is running like', 'ffmpeg ' + JSON.stringify(argv.join(' ')));
-
     ffmpegOptions = ffmpegOptions || {};
     Module.arguments = argv;
     Module.print = stdIn;
@@ -33,8 +31,6 @@ export const ffmpeg = (ffmpegOptions) => {
   }
 
   ffmpegSetup(ffmpegOptions);
-
-  console.log('finished preparing Module', Module);
 
 // -----------------------------------  
 // ---------- END OF pre.js ----------
