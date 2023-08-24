@@ -198,6 +198,12 @@ build/ffmpeg-webm/ffmpeg.bc: $(WEBM_SHARED_DEPS)
 	emmake make -j && \
 	cp ffmpeg ffmpeg.bc
 
+# @jimhigson: 
+#	--enable-bsf=h264_mp4toannexb - added so can do -f concat with mp4 files, so I can take clips
+# 	from a playlist.txt type file for beep where clips may be on file boundaries. May need more
+#	bitstream filters later if tool ends up being used with other formats
+#	https://ffmpeg.org/ffmpeg-formats.html#concat
+#	https://gist.github.com/YurySolovyov/e8cef2ee6cb895d20057f2ea3a36870e
 build/ffmpeg-mp4/ffmpeg.bc: $(MP4_SHARED_DEPS)
 	cd build/ffmpeg-mp4 && \
 	EM_PKG_CONFIG_PATH=$(FFMPEG_MP4_PC_PATH) emconfigure ./configure \
@@ -209,6 +215,7 @@ build/ffmpeg-mp4/ffmpeg.bc: $(MP4_SHARED_DEPS)
 		--enable-libx264 \
 		--extra-cflags="-s USE_ZLIB=1 -I../lame/dist/include" \
 		--extra-ldflags="-L../lame/dist/lib" \
+		--enable-bsf=h264_mp4toannexb \
 		&& \
 	emmake make -j && \
 	cp ffmpeg ffmpeg.bc

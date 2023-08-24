@@ -7,6 +7,8 @@ Fork of [ffmpeg.js](https://github.com/Kagami/ffmpeg.js/) modified for:
 * keeps syntactic sugar and hand-holding at a minimum. You are given the [emscripten Filesystem API](https://emscripten.org/docs/api_reference/Filesystem-API.html) to work with directly in any way you wish.
 * no minification in the `emcc` build. This allows debugging while developing. For prod builds, modern tools like Vite will minify at build time, so it is ok if libraries are not pre-minified. If you use this and need these files to be minified you can do that yourself.
 * no worker-specific builds. Use [comlink](https://github.com/GoogleChromeLabs/comlink) instead.
+* additional ffmpeg bitstream filters added `h264_mp4toannexb`, which helps when
+the input to `ffmpeg` is a [concatenation of separate files](https://ffmpeg.org/ffmpeg-formats.html#concat). Maybe add more later if needed.
 
 ## Caveats
 
@@ -136,27 +138,33 @@ conversion. Only the output is written to `MEMFS`.
 It's recommended to use [Docker](https://www.docker.com/) to build ffmpeg.js.
 
 1.  Clone ffmpeg.js repository with submodules:
-    ```bash
+```bash
     git clone https://github.com/jimhigson/ffmpeg.js-xl.git --recurse-submodules
-    ```
+```
 
 2.  Modify Makefile and/or patches if you wish to make a custom build.
 
 3.  Build everything:
-    ```bash
+```bash
     cd ffmpeg.js-xl.git
 
     # start docker, mounting host pwd in the container:
     docker run --rm -it -v `pwd`:/mnt -w /opt kagamihi/ffmpeg.js
 
-    # inside docker run: 1) copy files in from host fs; 2) build it; 3) copy result back to host fs
-    cp -a /mnt/{.git,build,Makefile} . && source /root/emsdk/emsdk_env.sh && make && cp ffmpeg*.js /mnt
+    # inside docker run:
+    # 1) copy files in from host fs
+    cp -a /mnt/{.git,build,Makefile} .
+    # 2) build it;
+    source /root/emsdk/emsdk_env.sh    
+    make # to make just mp4 build, can also do 'make ffmpeg-mp4.js'    
+    # 3) copy result back to host fs
+    cp ffmpeg*.js /mnt
 
     # the build result should now be in the root of the repo on the host
 
     # to efficiently rebuild after changing only Makefile and/or pre/post js:
     cp /mnt/Makefile . && cp -a /mnt/build/*.js build && make clean-js ffmpeg-mp4.js && cp ffmpeg*.js /mnt
-    ```
+```
 
 ## Build without Docker
 
