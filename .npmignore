@@ -2,6 +2,6 @@
 !/COPYING.*
 !/LICENSE.*
 # built files:
-!/ffmpeg-*.js
+!/dist
 # typescript types:
 !/ffmpeg.d.ts

@@ -158,12 +158,12 @@ It's recommended to use [Docker](https://www.docker.com/) to build ffmpeg.js.
     source /root/emsdk/emsdk_env.sh    
     make # to make just mp4 build, can also do 'make ffmpeg-mp4.js'    
     # 3) copy result back to host fs
-    cp ffmpeg*.js /mnt
+    cp ffmpeg*.js /mnt/dist
 
     # the build result should now be in the root of the repo on the host
 
     # to efficiently rebuild after changing only Makefile and/or pre/post js:
-    cp /mnt/Makefile . && cp -a /mnt/build/*.js build && make clean-js ffmpeg-mp4.js && cp ffmpeg*.js /mnt
+    cp /mnt/Makefile . && cp -a /mnt/build/*.js build && make clean-js ffmpeg-mp4.js && cp ffmpeg*.js /mnt/dist
 ```
 
 ## Build without Docker

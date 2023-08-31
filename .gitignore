@@ -1,4 +1,3 @@
 /node_modules/
-/ffmpeg*.js
-/ffmpeg*.wasm
+#/dist/* nah, I'll let dist get checked in. The world won't end and I want to see diffs when I rebuild
 /test/out*

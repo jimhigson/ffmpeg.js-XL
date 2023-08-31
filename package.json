@@ -2,7 +2,7 @@
   "name": "ffmpeg.js-xl",
   "version": "4.2.9005",
   "description": "Port of FFmpeg for large files in the browser, with Emscripten based on ffmpeg.js",
-  "main": "ffmpeg-mp4.js",
+  "main": "dist/ffmpeg-mp4.js",
   "types": "ffmpeg.d.ts",
   "type": "module",
   "scripts": {

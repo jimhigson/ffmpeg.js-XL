@@ -204,6 +204,7 @@ build/ffmpeg-webm/ffmpeg.bc: $(WEBM_SHARED_DEPS)
 #	bitstream filters later if tool ends up being used with other formats
 #	https://ffmpeg.org/ffmpeg-formats.html#concat
 #	https://gist.github.com/YurySolovyov/e8cef2ee6cb895d20057f2ea3a36870e
+#	to find out which are built in, run: `ffmpeg -bsfs`
 build/ffmpeg-mp4/ffmpeg.bc: $(MP4_SHARED_DEPS)
 	cd build/ffmpeg-mp4 && \
 	EM_PKG_CONFIG_PATH=$(FFMPEG_MP4_PC_PATH) emconfigure ./configure \
